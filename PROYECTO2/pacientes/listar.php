@@ -20,7 +20,7 @@ $pacientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="alert alert-success"><?=htmlspecialchars($_GET['msg'])?></div>
 <?php endif; ?>
 
-<a href="crear.php" class="btn btn-success mb-2">Agregar Paciente</a>
+<a href="crear.php" class="btn btn-success mb-2"><i class="bi bi-person-plus"></i> Agregar Paciente</a>
 <table class="table table-striped table-bordered">
     <thead>
         <tr>
@@ -49,8 +49,18 @@ $pacientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <td><?=htmlspecialchars($p['email'])?></td>
             <td><?=htmlspecialchars($p['fecha_registro'])?></td>
             <td>
-                <a href="/PROYECTO2/pacientes/editar.php?id=<?=$p['id_paciente']?>" class="btn btn-sm btn-primary">Editar</a>
-                <a href="/PROYECTO2/pacientes/eliminar.php?id=<?=$p['id_paciente']?>" class="btn btn-sm btn-danger" onclick="return confirm('¿Seguro que deseas eliminar este paciente?')">Eliminar</a>
+                <a href="/PROYECTO2/pacientes/editar.php?id=<?=$p['id_paciente']?>" 
+                   class="btn btn-outline-primary btn-sm" title="Editar">
+                    <i class="bi bi-pencil-square"></i>
+                </a>
+                <?php if(isset($_SESSION['rol']) && $_SESSION['rol'] === 'admin'): ?>
+                    <a href="/PROYECTO2/pacientes/eliminar.php?id=<?=$p['id_paciente']?>" 
+                       class="btn btn-outline-danger btn-sm" 
+                       onclick="return confirm('¿Seguro que deseas eliminar este paciente?')" 
+                       title="Eliminar">
+                        <i class="bi bi-trash-fill"></i>
+                    </a>
+                <?php endif; ?>
             </td>
         </tr>
     <?php endforeach; ?>

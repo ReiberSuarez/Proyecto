@@ -9,7 +9,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <meta charset="UTF-8">
     <title>CDI Dashboard</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link rel="stylesheet" href="/assets/css/styles.css">
     <style>
         body { min-height: 100vh; }
@@ -73,58 +73,109 @@ if (session_status() === PHP_SESSION_NONE) {
 <?php if(isset($_SESSION['usuario'])): ?>
 <div class="d-flex">
     <nav class="sidebar d-flex flex-column p-3">
-        <a class="navbar-brand mb-4" href="/PROYECTO2/dashboard.php">CDI Dashboard</a>
+        <a class="navbar-brand mb-4" href="/PROYECTO2/dashboard<?php echo ($_SESSION['rol'] === 'medico') ? '_regular' : ''; ?>.php">CDI Dashboard</a>
         <ul class="nav nav-pills flex-column mb-auto">
             <li class="nav-item mb-1">
-                <a class="nav-link" href="/PROYECTO2/dashboard.php">Inicio</a>
+                <a class="nav-link" href="/PROYECTO2/dashboard<?php echo ($_SESSION['rol'] === 'medico') ? '_regular' : ''; ?>.php">
+                    <i class="bi bi-house-door-fill me-2"></i> Inicio
+                </a>
             </li>
-            <!-- Dropdown Pacientes -->
-            <li class="nav-item mb-1">
-                <div class="dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="dropdownPacientes" data-bs-toggle="dropdown" aria-expanded="false">
-                        Pacientes
+            <?php if($_SESSION['rol'] === 'admin'): ?>
+                <!-- Menú completo para admin -->
+                <!-- Dropdown Pacientes -->
+                <li class="nav-item mb-1">
+                    <div class="dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="dropdownPacientes" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-people-fill me-2"></i> Pacientes
+                        </a>
+                        <ul class="dropdown-menu shadow" aria-labelledby="dropdownPacientes">
+                            <li>
+                                <a class="dropdown-item" href="/PROYECTO2/pacientes/listar.php">
+                                    <i class="bi bi-people"></i> Ver pacientes
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <!-- Dropdown Médicos y Gestión Clínica -->
+                <li class="nav-item mb-1">
+                    <div class="dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="dropdownMedicos" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-vcard-fill me-2"></i> Médicos y Clínica
+                        </a>
+                        <ul class="dropdown-menu shadow" aria-labelledby="dropdownMedicos">
+                            <li><a class="dropdown-item" href="/PROYECTO2/medicos/listar.php">Médicos</a></li>
+                            <li><a class="dropdown-item" href="/PROYECTO2/especialidades/listar.php">Especialidades</a></li>
+                            <li><a class="dropdown-item" href="/PROYECTO2/medicos/especialidad/listar.php">Médico-Especialidad</a></li>
+                            <li><a class="dropdown-item" href="/PROYECTO2/historial/medico/listar.php">Historial Médico</a></li>
+                        </ul>
+                    </div>
+                </li>
+                <!-- Dropdown Servicios -->
+                <li class="nav-item mb-1">
+                    <div class="dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="dropdownServicios" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-briefcase-fill me-2"></i> Servicios
+                        </a>
+                        <ul class="dropdown-menu shadow" aria-labelledby="dropdownServicios">
+                            <li><a class="dropdown-item" href="/PROYECTO2/servicios/listar.php">Servicios</a></li>
+                            <li><a class="dropdown-item" href="/PROYECTO2/servicios/especialidad/especialidad_listar.php">Servicio-Especialidad</a></li>
+                            <li><a class="dropdown-item" href="/PROYECTO2/servicios/ordenes/orden_listar.php">Órdenes / Remisiones</a></li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="nav-item mb-1">
+                    <a class="nav-link" href="/PROYECTO2/usuarios/listar.php">
+                        <i class="bi bi-person-lines-fill me-2"></i> Usuarios
                     </a>
-                    <ul class="dropdown-menu shadow" aria-labelledby="dropdownPacientes">
-                        <li>
-                            <a class="dropdown-item" href="/PROYECTO2/pacientes/listar.php">
-                                <i class="bi bi-people"></i> Ver pacientes
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </li>
-            <!-- Dropdown Médicos y Gestión Clínica -->
-            <li class="nav-item mb-1">
-                <div class="dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="dropdownMedicos" data-bs-toggle="dropdown" aria-expanded="false">
-                        Médicos y Clínica
-                    </a>
-                    <ul class="dropdown-menu shadow" aria-labelledby="dropdownMedicos">
-                        <li><a class="dropdown-item" href="/PROYECTO2/medicos/listar.php">Médicos</a></li>
-                        <li><a class="dropdown-item" href="/PROYECTO2/especialidades/listar.php">Especialidades</a></li>
-                        <li><a class="dropdown-item" href="/PROYECTO2/medicos/especialidad/listar.php">Médico-Especialidad</a></li>
-                        <li><a class="dropdown-item" href="/PROYECTO2/historial/medico/listar.php">Historial Médico</a></li>
-                    </ul>
-                </div>
-            </li>
-            <!-- Dropdown Servicios -->
-            <li class="nav-item mb-1">
-                <div class="dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="dropdownServicios" data-bs-toggle="dropdown" aria-expanded="false">
-                        Servicios
-                    </a>
-                    <ul class="dropdown-menu shadow" aria-labelledby="dropdownServicios">
-                        <li><a class="dropdown-item" href="/PROYECTO2/servicios/listar.php">Servicios</a></li>
-                        <li><a class="dropdown-item" href="/PROYECTO2/servicios/especialidad/especialidad_listar.php">Servicio-Especialidad</a></li>
-                        <li><a class="dropdown-item" href="/PROYECTO2/orden/listar.php">Órdenes / Remisiones</a></li>
-                    </ul>
-                </div>
-            </li>
-            <li class="nav-item mb-1">
-                <a class="nav-link" href="/PROYECTO2/usuarios/listar.php">Usuarios</a>
-            </li>
+                </li>
+            <?php elseif($_SESSION['rol'] === 'medico'): ?>
+                <!-- Menú reducido para médico -->
+                <!-- Dropdown Pacientes -->
+                <li class="nav-item mb-1">
+                    <div class="dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="dropdownPacientes" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-people-fill me-2"></i> Pacientes
+                        </a>
+                        <ul class="dropdown-menu shadow" aria-labelledby="dropdownPacientes">
+                            <li>
+                                <a class="dropdown-item" href="/PROYECTO2/pacientes/listar.php">
+                                    <i class="bi bi-people"></i> Ver pacientes
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <!-- Dropdown Médicos y Clínica -->
+                <li class="nav-item mb-1">
+                    <div class="dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="dropdownMedicos" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-vcard-fill me-2"></i> Médicos y Clínica
+                        </a>
+                        <ul class="dropdown-menu shadow" aria-labelledby="dropdownMedicos">
+                            <li><a class="dropdown-item" href="/PROYECTO2/especialidades/listar.php">Especialidades</a></li>
+                            <li><a class="dropdown-item" href="/PROYECTO2/historial/medico/listar.php">Historial Médico</a></li>
+                        </ul>
+                    </div>
+                </li>
+                <!-- Dropdown Servicios -->
+                <li class="nav-item mb-1">
+                    <div class="dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="dropdownServicios" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-briefcase-fill me-2"></i> Servicios
+                        </a>
+                        <ul class="dropdown-menu shadow" aria-labelledby="dropdownServicios">
+                            <li><a class="dropdown-item" href="/PROYECTO2/servicios/listar.php">Servicios</a></li>
+                            <li><a class="dropdown-item" href="/PROYECTO2/servicios/especialidad/especialidad_listar.php">Servicio-Especialidad</a></li>
+                            <li><a class="dropdown-item" href="/PROYECTO2/servicios/ordenes/orden_listar.php">Órdenes / Remisiones</a></li>
+                        </ul>
+                    </div>
+                </li>
+            <?php endif; ?>
             <li class="nav-item mt-4">
-                <a class="nav-link" href="/PROYECTO2/logout.php">Salir</a>
+                <a class="nav-link" href="/PROYECTO2/logout.php">
+                    <i class="bi bi-box-arrow-right me-2"></i> Salir
+                </a>
             </li>
         </ul>
     </nav>

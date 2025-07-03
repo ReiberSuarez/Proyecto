@@ -15,8 +15,10 @@ $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
 include('../templates/header.php');
 ?>
 <h2>Usuarios</h2>
-<a href="crear.php" class="btn btn-success mb-3">Nuevo Usuario</a>
-<table class="table table-bordered">
+<a href="crear.php" class="btn btn-success mb-3">
+    <i class="bi bi-person-plus"></i> Nuevo Usuario
+</a>
+<table class="table table-bordered align-middle">
     <thead>
         <tr>
             <th>ID</th>
@@ -38,14 +40,28 @@ include('../templates/header.php');
                         if ($u['rol'] === 'medico' && $u['id_medico']) {
                             echo htmlspecialchars($u['nombre_medico'] . ' ' . $u['apellido_medico']);
                         } else {
-                            echo '-';
+                            echo '<span class="text-muted">-</span>';
                         }
                     ?>
                 </td>
-                <td><?=htmlspecialchars($u['estatus'])?></td>
                 <td>
-                    <a href="/PROYECTO2/usuarios/editar.php?id=<?=$u['id_usuario']?>" class="btn btn-sm btn-primary">Editar</a>
-                    <a href="/PROYECTO2/usuarios/eliminar.php?id=<?=$u['id_usuario']?>" class="btn btn-sm btn-danger" onclick="return confirm('¿Seguro que desea eliminar este usuario?')">Eliminar</a>
+                    <?php if($u['estatus'] === 'Activo'): ?>
+                        <span class="badge bg-success"><i class="bi bi-check-circle"></i> Activo</span>
+                    <?php elseif($u['estatus'] === 'Inactivo'): ?>
+                        <span class="badge bg-secondary"><i class="bi bi-x-circle"></i> Inactivo</span>
+                    <?php elseif($u['estatus'] === 'Cancelado'): ?>
+                        <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Cancelado</span>
+                    <?php else: ?>
+                        <span class="badge bg-secondary"><?=htmlspecialchars($u['estatus'])?></span>
+                    <?php endif; ?>
+                </td>
+                <td>
+                    <a href="/PROYECTO2/usuarios/editar.php?id=<?=$u['id_usuario']?>" class="btn btn-sm btn-outline-primary" title="Editar">
+                        <i class="bi bi-pencil-square"></i>
+                    </a>
+                    <a href="/PROYECTO2/usuarios/eliminar.php?id=<?=$u['id_usuario']?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Seguro que desea eliminar este usuario?')" title="Eliminar">
+                        <i class="bi bi-trash-fill"></i>
+                    </a>
                 </td>
             </tr>
         <?php endforeach; ?>

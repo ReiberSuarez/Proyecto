@@ -34,7 +34,6 @@ try {
 $stmt2 = $pdo->prepare("SELECT id_especialidad FROM medico_especialidad WHERE id_medico = ?");
 $stmt2->execute([$id]);
 $especialidades_medico = $stmt2->fetchAll(PDO::FETCH_COLUMN);
-// Aseguramos enteros para comparación
 $especialidades_medico_int = array_map('intval', $especialidades_medico);
 
 $error = '';
@@ -105,75 +104,114 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 include ('../templates/header.php');
 ?>
-<h2>Editar Médico</h2>
-<?php if($error): ?>
-    <div class="alert alert-danger"><?=$error?></div>
-<?php endif; ?>
-<?php if (empty($especialidades)): ?>
-    <div class="alert alert-warning">No hay especialidades registradas. Por favor, agregue al menos una especialidad antes de editar médicos.</div>
-<?php endif; ?>
-<form method="post">
-    <div class="mb-3">
-        <label class="form-label">Cédula *</label>
-        <input type="text" name="cedula" class="form-control" value="<?=htmlspecialchars($medico['cedula'])?>" required>
+
+<style>
+    .center-card {
+        min-height: 85vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .card-formulario {
+        min-width: 340px;
+        max-width: 540px;
+        margin: auto;
+        box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+        border-radius: 18px;
+    }
+</style>
+
+<div class="center-card">
+    <div class="card card-formulario">
+        <div class="card-header bg-primary text-white text-center">
+            <h3 class="mb-0">Editar Médico</h3>
+        </div>
+        <form method="post" class="card-body">
+            <?php if($error): ?>
+                <div class="alert alert-danger"><?=$error?></div>
+            <?php endif; ?>
+            <?php if (empty($especialidades)): ?>
+                <div class="alert alert-warning">No hay especialidades registradas. Por favor, agregue al menos una especialidad antes de editar médicos.</div>
+            <?php endif; ?>
+            <div class="row">
+                <div class="mb-3 col-md-6">
+                    <label class="form-label">Cédula *</label>
+                    <input type="text" name="cedula" class="form-control" value="<?=htmlspecialchars($medico['cedula'])?>" required>
+                </div>
+                <div class="mb-3 col-md-6">
+                    <label class="form-label">Fecha de nacimiento</label>
+                    <input type="date" name="fecha_nacimiento" class="form-control" value="<?=htmlspecialchars($medico['fecha_nacimiento'])?>">
+                </div>
+            </div>
+            <div class="row">
+                <div class="mb-3 col-md-6">
+                    <label class="form-label">Nombres *</label>
+                    <input type="text" name="nombres" class="form-control" value="<?=htmlspecialchars($medico['nombres'])?>" required>
+                </div>
+                <div class="mb-3 col-md-6">
+                    <label class="form-label">Apellidos *</label>
+                    <input type="text" name="apellidos" class="form-control" value="<?=htmlspecialchars($medico['apellidos'])?>" required>
+                </div>
+            </div>
+            <div class="row">
+                <div class="mb-3 col-md-6">
+                    <label class="form-label">Sexo</label>
+                    <select name="sexo" class="form-select">
+                        <option value="">Seleccione</option>
+                        <option value="M" <?=$medico['sexo']=='M'?'selected':''?>>Masculino</option>
+                        <option value="F" <?=$medico['sexo']=='F'?'selected':''?>>Femenino</option>
+                        <option value="Otro" <?=$medico['sexo']=='Otro'?'selected':''?>>Otro</option>
+                    </select>
+                </div>
+                <div class="mb-3 col-md-6">
+                    <label class="form-label">Teléfono</label>
+                    <input type="text" name="telefono" class="form-control" value="<?=htmlspecialchars($medico['telefono'])?>">
+                </div>
+            </div>
+            <div class="row">
+                <div class="mb-3 col-md-6">
+                    <label class="form-label">Email</label>
+                    <input type="email" name="email" class="form-control" value="<?=htmlspecialchars($medico['email'])?>">
+                </div>
+                <div class="mb-3 col-md-6">
+                    <label class="form-label">Fecha de contratación</label>
+                    <input type="date" name="fecha_contratacion" class="form-control" value="<?=htmlspecialchars($medico['fecha_contratacion'])?>">
+                </div>
+            </div>
+            <div class="row">
+                <div class="mb-3 col-md-6">
+                    <label class="form-label">Dirección</label>
+                    <input type="text" name="direccion" class="form-control" value="<?=htmlspecialchars($medico['direccion'])?>">
+                </div>
+                <div class="mb-3 col-md-6">
+                    <label class="form-label">Estatus</label>
+                    <select name="estatus" class="form-select">
+                        <option value="">Seleccione</option>
+                        <option value="Activo" <?=$medico['estatus']=='Activo'?'selected':''?>>Activo</option>
+                        <option value="Inactivo" <?=$medico['estatus']=='Inactivo'?'selected':''?>>Inactivo</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Especialidades</label>
+                <select name="especialidades[]" class="form-select" multiple>
+                    <?php foreach($especialidades as $esp): ?>
+                        <option value="<?=$esp['id_especialidad']?>" <?=in_array((int)$esp['id_especialidad'],$especialidades_medico_int)?'selected':''?>><?=htmlspecialchars($esp['nombre_especialidad'])?></option>
+                    <?php endforeach; ?>
+                </select>
+                <small class="form-text text-muted">Mantén presionada la tecla Ctrl (Windows) o Cmd (Mac) para seleccionar varias.</small>
+            </div>
+            <div class="d-flex justify-content-between mt-4">
+                <a href="/PROYECTO2/medicos/listar.php" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left-circle"></i> Cancelar
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-floppy"></i> Actualizar
+                </button>
+            </div>
+        </form>
     </div>
-    <div class="mb-3">
-        <label class="form-label">Nombres *</label>
-        <input type="text" name="nombres" class="form-control" value="<?=htmlspecialchars($medico['nombres'])?>" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Apellidos *</label>
-        <input type="text" name="apellidos" class="form-control" value="<?=htmlspecialchars($medico['apellidos'])?>" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Fecha de nacimiento</label>
-        <input type="date" name="fecha_nacimiento" class="form-control" value="<?=htmlspecialchars($medico['fecha_nacimiento'])?>">
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Sexo</label>
-        <select name="sexo" class="form-select">
-            <option value="">Seleccione</option>
-            <option value="M" <?=$medico['sexo']=='M'?'selected':''?>>Masculino</option>
-            <option value="F" <?=$medico['sexo']=='F'?'selected':''?>>Femenino</option>
-            <option value="Otro" <?=$medico['sexo']=='Otro'?'selected':''?>>Otro</option>
-        </select>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Dirección</label>
-        <input type="text" name="direccion" class="form-control" value="<?=htmlspecialchars($medico['direccion'])?>">
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Teléfono</label>
-        <input type="text" name="telefono" class="form-control" value="<?=htmlspecialchars($medico['telefono'])?>">
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Email</label>
-        <input type="email" name="email" class="form-control" value="<?=htmlspecialchars($medico['email'])?>">
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Fecha de contratación</label>
-        <input type="date" name="fecha_contratacion" class="form-control" value="<?=htmlspecialchars($medico['fecha_contratacion'])?>">
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Estatus</label>
-        <select name="estatus" class="form-select">
-            <option value="">Seleccione</option>
-            <option value="Activo" <?=$medico['estatus']=='Activo'?'selected':''?>>Activo</option>
-            <option value="Inactivo" <?=$medico['estatus']=='Inactivo'?'selected':''?>>Inactivo</option>
-        </select>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Especialidades</label>
-        <select name="especialidades[]" class="form-select" multiple>
-            <?php foreach($especialidades as $esp): ?>
-                <option value="<?=$esp['id_especialidad']?>" <?=in_array((int)$esp['id_especialidad'],$especialidades_medico_int)?'selected':''?>><?=htmlspecialchars($esp['nombre_especialidad'])?></option>
-            <?php endforeach; ?>
-        </select>
-        <small class="form-text text-muted">Mantén presionada la tecla Ctrl (Windows) o Cmd (Mac) para seleccionar varias.</small>
-    </div>
-    <button type="submit" class="btn btn-primary">Actualizar</button>
-    <a href="/PROYECTO2/medicos/listar.php" class="btn btn-secondary">Cancelar</a>
-</form>
+</div>
 <script>
 document.querySelector('form').addEventListener('submit', function(e) {
     const prev = <?=json_encode($especialidades_medico_int)?>;

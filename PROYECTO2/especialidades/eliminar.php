@@ -8,15 +8,18 @@ if(!isset($_SESSION['usuario'])) {
 
 $id = isset($_GET['id']) && is_numeric($_GET['id']) ? (int)$_GET['id'] : null;
 if (!$id) {
-    header('Location: /PROYECTO2/especialidades/listar.php');
+    header('Location: /PROYECTO2/especialidades/listar.php?error=ID inválido');
     exit;
 }
 
 try {
     $stmt = $pdo->prepare("DELETE FROM especialidad WHERE id_especialidad = ?");
     $stmt->execute([$id]);
+    // Si no hubo error, redirige con éxito
+    header('Location: /PROYECTO2/especialidades/listar.php?msg=Especialidad eliminada');
+    exit;
 } catch (PDOException $e) {
-    // Puedes mostrar un mensaje o registrar el error si hay FKs relacionadas
+    // Redirige con mensaje de error
+    header('Location: /PROYECTO2/especialidades/listar.php?error=No se pudo eliminar la especialidad. Puede estar vinculada a médicos u otros datos.');
+    exit;
 }
-header('Location: /PROYECTO2/especialidades/listar.php');
-exit;

@@ -8,15 +8,16 @@ if(!isset($_SESSION['usuario'])) {
 
 $id = isset($_GET['id']) && is_numeric($_GET['id']) ? (int)$_GET['id'] : null;
 if (!$id) {
-    header('Location: /PROYECTO2/servicios/listar.php');
+    header('Location: /PROYECTO2/servicios/listar.php?error=ID inválido');
     exit;
 }
 
 try {
     $stmt = $pdo->prepare("DELETE FROM servicio WHERE id_servicio = ?");
     $stmt->execute([$id]);
+    header('Location: /PROYECTO2/servicios/listar.php?msg=Servicio eliminado correctamente');
+    exit;
 } catch (PDOException $e) {
-    // Puedes mostrar un mensaje o registrar el error si hay FKs relacionadas
+    header('Location: /PROYECTO2/servicios/listar.php?error=No se pudo eliminar el servicio. Puede estar vinculado a otros registros.');
+    exit;
 }
-header('Location: /PROYECTO2/servicios/listar.php');
-exit;

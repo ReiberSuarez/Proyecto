@@ -11,14 +11,16 @@ include ('../templates/header.php');
 $stmt = $pdo->query("SELECT * FROM medico ORDER BY nombres");
 $medicos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// 2. Obtener especialidades y horarios para todos los médicos (para evitar N+1 queries)
+// 2. Obtener especialidades, horarios y servicios para todos los médicos (para evitar N+1 queries)
 $ids_medicos = array_column($medicos, 'id_medico');
 $especialidades_medico = [];
 $horarios_medico = [];
+$servicios_medico = [];
 
 if (count($ids_medicos)) {
-    // Especialidades por médico
     $in = str_repeat('?,', count($ids_medicos)-1) . '?';
+
+    // Especialidades por médico
     $stmt2 = $pdo->prepare("
         SELECT me.id_medico, GROUP_CONCAT(e.nombre_especialidad ORDER BY e.nombre_especialidad SEPARATOR ', ') AS especialidades
         FROM medico_especialidad me
@@ -31,7 +33,7 @@ if (count($ids_medicos)) {
         $especialidades_medico[$row['id_medico']] = $row['especialidades'];
     }
 
-    // Horarios por médico (considerando todas sus especialidades, sin duplicados)
+    // Horarios por médico
     $stmt3 = $pdo->prepare("
         SELECT m.id_medico, GROUP_CONCAT(DISTINCT h.descripcion ORDER BY h.descripcion SEPARATOR ', ') AS horarios
         FROM medico m
@@ -45,6 +47,19 @@ if (count($ids_medicos)) {
     foreach($stmt3 as $row) {
         $horarios_medico[$row['id_medico']] = $row['horarios'];
     }
+
+    // Servicios asignados por médico
+    $stmt4 = $pdo->prepare("
+        SELECT ms.id_medico, GROUP_CONCAT(s.nombre_servicio ORDER BY s.nombre_servicio SEPARATOR ',') as servicios
+        FROM medico_servicio ms
+        JOIN servicio s ON ms.id_servicio = s.id_servicio
+        WHERE ms.id_medico IN ($in)
+        GROUP BY ms.id_medico
+    ");
+    $stmt4->execute($ids_medicos);
+    foreach($stmt4 as $row) {
+        $servicios_medico[$row['id_medico']] = $row['servicios'];
+    }
 }
 ?>
 
@@ -57,18 +72,19 @@ if (count($ids_medicos)) {
     <div class="alert alert-success"><?=htmlspecialchars($_GET['msg'])?></div>
 <?php endif; ?>
 
-<a href="crear.php" class="btn btn-success mb-2">Agregar Médico</a>
-<table class="table table-striped table-bordered">
+<a href="crear.php" class="btn btn-success mb-2"><i class="bi bi-person-plus"></i> Agregar Médico</a>
+<table class="table table-striped table-bordered align-middle">
     <thead>
         <tr>
             <th>Cédula</th>
             <th>Nombres</th>
             <th>Apellidos</th>
             <th>Especialidades Asignadas</th>
+            <th>Servicios Asignados</th>
             <th>Horarios</th>
             <th>Teléfono</th>
             <th>Email</th>
-            <th>Acciones</th>
+            <th class="text-center">Acciones</th>
         </tr>
     </thead>
     <tbody>
@@ -79,15 +95,37 @@ if (count($ids_medicos)) {
             <td><?=htmlspecialchars($m['apellidos'])?></td>
             <td><?=htmlspecialchars($especialidades_medico[$m['id_medico']] ?? '-')?></td>
             <td>
+                <?php
+                if (!empty($servicios_medico[$m['id_medico']])) {
+                    foreach(explode(',', $servicios_medico[$m['id_medico']]) as $serv) {
+                        echo '<span class="badge bg-info text-dark me-1 mb-1">'.htmlspecialchars($serv).'</span>';
+                    }
+                } else {
+                    echo '<span class="text-muted">Sin servicios</span>';
+                }
+                ?>
+            </td>
+            <td>
                 <?= $horarios_medico[$m['id_medico']] 
                     ? htmlspecialchars($horarios_medico[$m['id_medico']])
                     : '<span class="text-muted">Sin horario</span>' ?>
             </td>
             <td><?=htmlspecialchars($m['telefono'])?></td>
             <td><?=htmlspecialchars($m['email'])?></td>
-            <td>
-                <a href="/PROYECTO2/medicos/editar.php?id=<?=$m['id_medico']?>" class="btn btn-sm btn-primary">Editar</a>
-                <a href="/PROYECTO2/medicos/eliminar.php?id=<?=$m['id_medico']?>" class="btn btn-sm btn-danger" onclick="return confirm('¿Seguro que deseas eliminar este médico?')">Eliminar</a>
+            <td class="text-center">
+                <a href="/PROYECTO2/medicos/editar.php?id=<?=$m['id_medico']?>" 
+                   class="btn btn-outline-primary btn-sm" title="Editar">
+                    <i class="bi bi-pencil-square"></i>
+                </a>
+                <a href="/PROYECTO2/medicos/eliminar.php?id=<?=$m['id_medico']?>" 
+                   class="btn btn-outline-danger btn-sm" title="Eliminar"
+                   onclick="return confirm('¿Seguro que deseas eliminar este médico?')">
+                    <i class="bi bi-trash-fill"></i>
+                </a>
+                <a href="/PROYECTO2/medicos/asignar_servicios.php?id=<?=$m['id_medico']?>" 
+                   class="btn btn-outline-warning btn-sm" title="Servicios">
+                    <i class="bi bi-gear-fill"></i>
+                </a>
             </td>
         </tr>
     <?php endforeach; ?>

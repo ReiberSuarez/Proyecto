@@ -43,7 +43,7 @@ foreach ($rows as $row) {
 
 <div class="container mt-4">
     <h2>Asignaciones Médico-Especialidad</h2>
-    <a href="crear.php" class="btn btn-success mb-3">Asignar Especialidad a Médico</a>
+    <a href="crear.php" class="btn btn-success mb-2"><i class="bi bi-journal-plus"></i> Asignar Especialidad a Médico</a>
     <table class="table table-bordered align-middle">
         <thead>
             <tr>
@@ -57,20 +57,19 @@ foreach ($rows as $row) {
                 <td><?=htmlspecialchars($medico['nombre'])?></td>
                 <td>
                     <?php foreach($medico['especialidades'] as $esp): ?>
-                        <span class="badge bg-primary me-2 mb-1" style="font-size:1em;">
+                        <span class="badge bg-primary me-2 mb-1" style="font-size:1.1em;">
                             <?=htmlspecialchars($esp['nombre'])?>
-                            <!-- Botón eliminar -->
+                            <!-- Opción eliminar -->
                             <a href="eliminar.php?id=<?=intval($esp['id_medico_especialidad'])?>"
-                               style="color:white; margin-left:5px; text-decoration:none; font-weight:bold;"
-                               onclick="return confirm('¿Seguro que desea quitar esta especialidad?')"
-                               title="Eliminar especialidad">
-                               &times;
+                               style="color:white; margin-left:10px; font-weight:bold; text-decoration:underline;"
+                               onclick="return confirm('¿Seguro que desea quitar esta especialidad?')" 
+                               title="Quitar especialidad">
+                                <i class="bi bi-trash-fill"></i>
                             </a>
-                            <!-- Botón gestionar horarios -->
                             <a href="gestionar_horarios.php?id_medico=<?=intval($id_medico)?>&id_especialidad=<?=intval($esp['id_especialidad'])?>"
-                               style="color:white; margin-left:8px; text-decoration:none;"
-                               title="Gestionar horarios">
-                                <i class="bi bi-clock"></i>
+                                style="color:white; margin-left:15px; text-decoration:underline; font-weight:bold;"
+                                title="Gestionar horario">
+                                <i class="bi bi-pencil-square"></i>
                             </a>
                         </span>
                     <?php endforeach; ?>
@@ -80,5 +79,4 @@ foreach ($rows as $row) {
         </tbody>
     </table>
 </div>
-<!-- Si usas Bootstrap Icons, asegúrate de incluir su CDN en tu header -->
 <?php include ('../../templates/footer.php'); ?>
